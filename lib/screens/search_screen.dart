@@ -13,7 +13,8 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController searchController = TextEditingController();
-  bool isShowUsers = false;
+  bool isShow = false;
+  bool showUser = true;
 
   @override
   void dispose() {
@@ -34,52 +35,152 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             onFieldSubmitted: (String _) {
               setState(() {
-                isShowUsers = true;
+                isShow = true;
               });
               print(_);
             },
           ),
         ),
       ),
-      body: isShowUsers
-          ? FutureBuilder(
-              future: FirebaseFirestore.instance
-                  .collection('users')
-                  .where('username',
-                      isGreaterThanOrEqualTo: searchController.text)
-                  .get(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+      body: isShow
+          ? Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Ink(
+                      width: MediaQuery.of(context).size.width / 2,
+                      decoration: BoxDecoration(
+                        color: secondaryColor,
+                        border: showUser
+                            ? const Border(
+                                bottom:
+                                    BorderSide(width: 1.0, color: primaryColor),
+                              )
+                            : const Border(
+                                bottom: BorderSide(
+                                    width: 1.0, color: secondaryColor),
+                              ),
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            showUser = true;
+                          });
+                        },
+                        icon: const Icon(
+                          Icons.group,
+                          color: primaryColor,
+                        ),
+                      ),
+                    ),
+                    Ink(
+                      width: MediaQuery.of(context).size.width / 2,
+                      decoration: BoxDecoration(
+                        color: secondaryColor,
+                        border: !showUser
+                            ? const Border(
+                                bottom:
+                                    BorderSide(width: 1.0, color: primaryColor),
+                              )
+                            : const Border(
+                                bottom: BorderSide(
+                                    width: 1.0, color: secondaryColor),
+                              ),
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            showUser = false;
+                          });
+                        },
+                        icon: const Icon(
+                          Icons.person,
+                          color: primaryColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                !showUser
+                    ? FutureBuilder(
+                        future: FirebaseFirestore.instance
+                            .collection('users')
+                            .where('username',
+                                isGreaterThanOrEqualTo: searchController.text)
+                            .get(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
 
-                return ListView.builder(
-                  itemCount: (snapshot.data! as dynamic).docs.length,
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => ProfileScreen(
-                            uid: (snapshot.data! as dynamic).docs[index]['uid'],
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: (snapshot.data! as dynamic).docs.length,
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => ProfileScreen(
+                                      uid: (snapshot.data! as dynamic)
+                                          .docs[index]['uid'],
+                                    ),
+                                  ),
+                                ),
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                      (snapshot.data! as dynamic).docs[index]
+                                          ['photoUrl'],
+                                    ),
+                                  ),
+                                  title: Text(
+                                    (snapshot.data! as dynamic).docs[index]
+                                        ['username'],
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      )
+                    // : Container(
+                    //     alignment: Alignment.topLeft,
+                    //     margin: const new EdgeInsets.only(left: 20, top: 20),
+                    //     child: const Text(
+                    //       'Music',
+                    //       style: TextStyle(fontSize: 16),
+                    //     ),
+                    //   )
+                    : Column(children: [
+                        Container(
+                          alignment: Alignment.topLeft,
+                          margin: const EdgeInsets.only(left: 20, top: 20),
+                          child: const Text(
+                            'Music',
+                            style: TextStyle(fontSize: 16),
                           ),
                         ),
-                      ),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundImage: NetworkImage(
-                            (snapshot.data! as dynamic).docs[index]['photoUrl'],
+                        Container(
+                          alignment: Alignment.topLeft,
+                          margin: const EdgeInsets.only(left: 20, top: 20),
+                          child: const Text(
+                            'Basketball',
+                            style: TextStyle(fontSize: 16),
                           ),
                         ),
-                        title: Text(
-                          (snapshot.data! as dynamic).docs[index]['username'],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+                        Container(
+                          alignment: Alignment.topLeft,
+                          margin: const EdgeInsets.only(left: 20, top: 20),
+                          child: const Text(
+                            'Sports',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        )
+                      ])
+              ],
             )
           : FutureBuilder(
               future: FirebaseFirestore.instance.collection('posts').get(),

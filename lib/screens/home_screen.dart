@@ -25,9 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
               backgroundColor: mobileBackgroundColor,
               centerTitle: false,
               title: SvgPicture.asset(
-                'assets/logo.svg',
+                'assets/intrst.svg',
                 color: primaryColor,
-                height: 64,
+                height: 24,
               ),
               actions: [
                 IconButton(

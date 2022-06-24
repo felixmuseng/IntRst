@@ -11,7 +11,7 @@ List<Widget> homeScreenItems = [
   const HomeScreen(),
   const SearchScreen(),
   const AddPostScreen(),
-  const Text('notifications'),
+  const Text(''),
   ProfileScreen(
     uid: FirebaseAuth.instance.currentUser!.uid,
   ),
